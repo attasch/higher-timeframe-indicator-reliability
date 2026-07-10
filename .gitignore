@@ -216,3 +216,17 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Python
+.venv/
+__pycache__/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Market data
+data/raw/
+data/processed/
+
+# macOS
+.DS_Store
