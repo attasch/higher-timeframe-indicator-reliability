@@ -228,5 +228,8 @@ __pycache__/
 data/raw/
 data/processed/
 
+# tester file
+scripts/tester.py
+
 # macOS
 .DS_Store

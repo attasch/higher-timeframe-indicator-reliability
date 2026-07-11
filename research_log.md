@@ -12,9 +12,9 @@ Higher timeframes produce fewer signals but a higher percentage of successful on
 - Stochastic RSI
 
 ### Markets
-- BTC-USD
-- ETH-USD
-- TSLA
+- BTC-USDT
+- ETH-USDT
+- XRP-USDT
 
 ### Planned Timeframes
 - 15m

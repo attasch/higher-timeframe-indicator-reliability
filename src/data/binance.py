@@ -68,6 +68,47 @@ def _download_month(
 
     return df
 
+def _convert_timestamp(series: pd.Series) -> pd.Series:
+    """
+    Convert Binance timestamps.
+    Handles:
+    - milliseconds
+    - microseconds
+    - nanoseconds
+    """
+
+    series = pd.to_numeric(series)
+
+    result = pd.Series(
+        index=series.index,
+        dtype="datetime64[ns]"
+    )
+
+    # milliseconds (~1.7 trillion)
+    ms = series < 10**13
+
+    # microseconds (~1.7 quadrillion)
+    us = (series >= 10**13) & (series < 10**16)
+
+    # nanoseconds (~1.7 quintillion)
+    ns = series >= 10**16
+
+    result.loc[ms] = pd.to_datetime(
+        series.loc[ms],
+        unit="ms",
+    )
+
+    result.loc[us] = pd.to_datetime(
+        series.loc[us],
+        unit="us",
+    )
+
+    result.loc[ns] = pd.to_datetime(
+        series.loc[ns],
+        unit="ns",
+    )
+
+    return result
 
 def _clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -89,14 +130,12 @@ def _clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
         "ignore",
     ]
 
-    df["open_time"] = pd.to_datetime(
-        df["open_time"],
-        unit="ms",
+    df["open_time"] = _convert_timestamp(
+        df["open_time"]
     )
 
-    df["close_time"] = pd.to_datetime(
-        df["close_time"],
-        unit="ms",
+    df["close_time"] = _convert_timestamp(
+        df["close_time"]
     )
 
     numeric_columns = [
@@ -118,9 +157,6 @@ def _clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 
 
 from pathlib import Path
-
-...
-
 from src.data.archive import BinanceArchive, archives_exist
 
 
@@ -238,10 +274,19 @@ def build_dataframe_from_archives(
 
 def load_processed(symbol: str, interval: str) -> pd.DataFrame:
 
-    return pd.read_csv(
+    df = pd.read_csv(
         processed_file(symbol, interval),
-        parse_dates=["open_time", "close_time"],
     )
+
+    df["open_time"] = pd.to_datetime(
+        df["open_time"],
+    )
+
+    df["close_time"] = pd.to_datetime(
+        df["close_time"],
+    )
+
+    return df
 
 def save_processed(
     df: pd.DataFrame,
